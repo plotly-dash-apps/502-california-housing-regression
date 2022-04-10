@@ -1,16 +1,25 @@
 import dash
 from dash import dcc,html
 from dash.dependencies import Input, Output, State
-
-
+import pickle
+import numpy as np
 
 ########### Define your variables ######
-myheading1='Predicting Home Sale Prices in Ames, Iowa'
-image1='ames_welcome.jpeg'
-tabtitle = 'Ames Housing'
-sourceurl = 'http://jse.amstat.org/v19n3/decock.pdf'
+myheading1='California Housing Dataset'
+tabtitle = 'Cali Housing'
+sourceurl = 'https://github.com/ageron/handson-ml2/blob/master/02_end_to_end_machine_learning_project.ipynb'
 githublink = 'https://github.com/plotly-dash-apps/501-linear-reg-ames-housing'
 
+
+########### open the pickle files ######
+with open('analysis/model_components/r2_fig.pkl', 'rb') as f:
+    r2_fig=pickle.load(f)
+with open('analysis/model_components/rmse_fig.pkl', 'rb') as f:
+    rmse_fig=pickle.load(f)
+with open('analysis/model_components/std_scaler.pkl', 'rb') as f:
+    std_scaler=pickle.load(f)
+with open('analysis/model_components/lin_reg.pkl', 'rb') as f:
+    lin_reg=pickle.load(f)
 
 ########### Initiate the app
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -20,71 +29,105 @@ app.title=tabtitle
 
 ########### Set up the layout
 app.layout = html.Div(children=[
-    html.H1(myheading1),
-    html.Div([
-        html.Img(src=app.get_asset_url(image1), style={'width': '30%', 'height': 'auto'}, className='four columns'),
-        html.Div([
-                html.H3('Features of Home:'),
-                html.Div('Year Built:'),
-                dcc.Input(id='YearBuilt', value=2010, type='number', min=2006, max=2010, step=1),
-                html.Div('Bathrooms:'),
-                dcc.Input(id='Bathrooms', value=2, type='number', min=1, max=5, step=1),
-                html.Div('Bedrooms:'),
-                dcc.Input(id='BedroomAbvGr', value=4, type='number', min=1, max=5, step=1),
-                html.Div('Total Square Feet:'),
-                dcc.Input(id='TotalSF', value=2000, type='number', min=100, max=5000, step=1),
-                html.Div('Single Family Home:'),
-                dcc.Input(id='SingleFam', value=0, type='number', min=0, max=1, step=1),
-                html.Div('Large Neighborhood:'),
-                dcc.Input(id='LargeNeighborhood', value=0, type='number', min=0, max=1, step=1),
+    html.H1('California Neighborhoods'),
+    html.H4('What is the Median Home Value of a Neighborhood?'),
 
-            ], className='four columns'),
-            html.Div([
-                html.Button(children='Submit', id='submit-val', n_clicks=0,
-                                style={
-                                'background-color': 'red',
-                                'color': 'white',
-                                'margin-left': '5px',
-                                'verticalAlign': 'center',
-                                'horizontalAlign': 'center'}
-                                ),
-                html.H3('Predicted Home Value:'),
-                html.Div(id='Results')
-            ], className='four columns')
-        ], className='twelve columns',
-    ),
-    html.Br(),
-    html.Br(),
-    html.Br(),
-    html.H4('Regression Equation:'),
-    html.Div('Predicted Price = (- $1,360.5K Baseline) + ($0.7K * Year Built) + ($12.7K * Bathrooms) + (- $7.7K * Bedrooms) + ($0.049K * Total Square Feet) + ($ 25.2K * Single Family Home) + (- $6.6 K * Large Neighborhood)'),
-    html.Br(),
-    html.A('Google Spreadsheet', href='https://docs.google.com/spreadsheets/d/1q2ustRvY-GcmPO5NYudvsBEGNs5Na5p_8LMeS4oM35U/edit?usp=sharing'),
-    html.Br(),
-    html.A('Code on Github', href=githublink),
-    html.Br(),
-    html.A("Data Source", href=sourceurl),
-    ]
-)
+    ### Prediction Block
+    html.Div(children=[
+        html.Div([
+                    html.H6('Features of Neighborhood:'),
+
+                    html.Div('Longitude:'),
+                    dcc.Input(id='longitude', value=-119.5, type='number', min=-124.3, max=-114.3, step=.1),
+
+                    html.Div('Latitude:'),
+                    dcc.Input(id='latitude', value=35.6, type='number', min=32.5, max=41.95, step=.1),
+
+                    html.Div('Housing Median Age:'),
+                    dcc.Input(id='housing_median_age', value=28, type='number', min=1, max=52, step=1),
+
+                    html.Div('Total Rooms:'),
+                    dcc.Input(id='total_rooms', value=2000, type='number', min=1000, max=3000, step=100),
+
+                    html.Div('Population:'),
+                    dcc.Input(id='population', value=1500, type='number', min=1000, max=35000, step=500),
+
+                    html.Div('Households:'),
+                    dcc.Input(id='households', value=1000, type='number', min=500, max=6000, step=500),
+
+                    html.Div('Median Home Income:'),
+                    dcc.Input(id='median_income', value=2, type='number', min=1, max=15, step=1),
+
+                    html.Div('Income Category:'),
+                    dcc.Input(id='income_cat', value=3, type='number', min=1, max=5, step=1),
+
+                    html.Div('Rooms per Household:'),
+                    dcc.Input(id='rooms_per_hhold', value=5, type='number', min=1, max=7, step=1),
+
+                    html.Div('Population per Household:'),
+                    dcc.Input(id='pop_per_household', value=3, type='number', min=1, max=10, step=1),
+
+                ], className='six columns'),
+        html.Div([
+                    html.H6('Median Home Value (Predicted):'),
+                    html.Button(children='Submit', id='submit-val', n_clicks=0,
+                                    style={
+                                    'background-color': 'red',
+                                    'color': 'white',
+                                    'margin-left': '5px',
+                                    'verticalAlign': 'center',
+                                    'horizontalAlign': 'center'}
+                                    ),
+
+                    html.Div(id='Results')
+                ], className='six columns')
+            ], className='twelve columns'),
+        ### Evaluation Block
+        html.Div(children=[
+            html.Div(
+                    [dcc.Graph(figure=r2_fig, id='r2_fig')
+                    ], className='six columns'),
+            html.Div(
+                    [dcc.Graph(figure=rmse_fig, id='rmse_fig')
+                    ], className='six columns'),
+                ], className='twelve columns'),
+        html.A('Code on Github', href=githublink),
+        html.Br(),
+        html.A("Data Source", href=sourceurl),
+        ], className='twelve columns')
 
 
 ######### Define Callback
 @app.callback(
     Output(component_id='Results', component_property='children'),
     Input(component_id='submit-val', component_property='n_clicks'),
-    State(component_id='YearBuilt', component_property='value'),
-    State(component_id='Bathrooms', component_property='value'),
-    State(component_id='BedroomAbvGr', component_property='value'),
-    State(component_id='TotalSF', component_property='value'),
-    State(component_id='SingleFam', component_property='value'),
-    State(component_id='LargeNeighborhood', component_property='value')
-
+    # regression inputs:
+    State(component_id='longitude', component_property='value'),
+    State(component_id='latitude', component_property='value'),
+    State(component_id='housing_median_age', component_property='value'),
+    State(component_id='total_rooms', component_property='value'),
+    State(component_id='population', component_property='value'),
+    State(component_id='households', component_property='value'),
+    State(component_id='median_income', component_property='value'),
+    State(component_id='income_cat', component_property='value'),
+    State(component_id='rooms_per_hhold', component_property='value'),
+    State(component_id='pop_per_household', component_property='value'),
 )
-def ames_lr_function(clicks, YearBuilt,Bathrooms,BedroomAbvGr,TotalSF,SingleFam,LargeNeighborhood):
+def make_prediction(clicks, longitude, latitude, housing_median_age, total_rooms,
+        population, households, median_income, income_cat,
+        rooms_per_hhold, pop_per_household):
     if clicks==0:
         return "waiting for inputs"
     else:
-        y = [-1360501.3809 + 704.4287*YearBuilt + 12738.4775*Bathrooms + -7783.1712*BedroomAbvGr + 49.824*TotalSF+ 25282.091*SingleFam+ -6637.2636*LargeNeighborhood]
+
+        inputs=[longitude, latitude, housing_median_age, total_rooms,
+               population, households, median_income, income_cat,
+               rooms_per_hhold, pop_per_household, 0, 0, 0, 0]
+       # note: the 4 zeroes are for missing categories=['INLAND', 'ISLAND', 'NEAR BAY','NEAR OCEAN']
+        fake = np.array([-122, 37, 40, 2000, 3000, 500, 3, 3, 6, 4, 0, 0, 1, 0]).reshape(1, -1)
+        std_fake = std_scaler.transform(fake)
+        # return str(scaled_results)
+        y = lin_reg.predict(std_fake)
         formatted_y = "${:,.2f}".format(y[0])
         return formatted_y
 
