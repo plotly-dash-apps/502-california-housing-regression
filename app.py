@@ -8,7 +8,7 @@ import numpy as np
 myheading1='California Housing Dataset'
 tabtitle = 'Cali Housing'
 sourceurl = 'https://github.com/ageron/handson-ml2/blob/master/02_end_to_end_machine_learning_project.ipynb'
-githublink = 'https://github.com/plotly-dash-apps/501-linear-reg-ames-housing'
+githublink = 'https://github.com/plotly-dash-apps/502-california-housing-regression'
 
 
 ########### open the pickle files ######
