@@ -132,14 +132,19 @@ def make_prediction(clicks, longitude, latitude, housing_median_age, total_rooms
         return "waiting for inputs"
     else:
 
-        inputs=[longitude, latitude, housing_median_age, total_rooms,
+        inputs=np.array([longitude, latitude, housing_median_age, total_rooms,
                population, households, median_income, income_cat,
-               rooms_per_hhold, pop_per_household, 0, 0, 0, 0]
+               rooms_per_hhold, pop_per_household, 0, 0, 0, 0]).reshape(1, -1)
        # note: the 4 zeroes are for missing categories=['INLAND', 'ISLAND', 'NEAR BAY','NEAR OCEAN']
-        fake = np.array([-122, 37, 40, 2000, 3000, 500, 3, 3, 6, 4, 0, 0, 1, 0]).reshape(1, -1)
-        std_fake = std_scaler.transform(fake)
-        # return str(scaled_results)
-        y = lin_reg.predict(std_fake)
+
+       # test with fake inputs
+        # fake = np.array([-122, 37, 40, 2000, 3000, 500, 3, 3, 6, 4, 0, 0, 1, 0]).reshape(1, -1)
+        # std_fake = std_scaler.transform(fake)
+
+        # standardization
+        std_inputs = std_scaler.transform(inputs)
+
+        y = lin_reg.predict(std_inputs)
         formatted_y = "${:,.2f}".format(y[0])
         return formatted_y
 
