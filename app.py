@@ -12,6 +12,8 @@ githublink = 'https://github.com/plotly-dash-apps/502-california-housing-regress
 
 
 ########### open the pickle files ######
+with open('analysis/model_components/coefs_fig.pkl', 'rb') as f:
+    coefs=pickle.load(f)
 with open('analysis/model_components/r2_fig.pkl', 'rb') as f:
     r2_fig=pickle.load(f)
 with open('analysis/model_components/rmse_fig.pkl', 'rb') as f:
@@ -52,6 +54,7 @@ app.layout = html.Div(children=[
                     html.Div('Population:'),
                     dcc.Input(id='population', value=1500, type='number', min=1000, max=35000, step=500),
                 ], className='four columns'),
+
         html.Div([
 
 
@@ -94,6 +97,12 @@ app.layout = html.Div(children=[
                     [dcc.Graph(figure=rmse_fig, id='rmse_fig')
                     ], className='six columns'),
                 ], className='twelve columns'),
+
+        html.Div(children=[
+                html.H3('Linear Regression Coefficients (standardized features)'),
+                dcc.Graph(figure=coefs, id='coefs_fig')
+                ], className='twelve columns'),
+
         html.A('Code on Github', href=githublink),
         html.Br(),
         html.A("Data Source", href=sourceurl),
