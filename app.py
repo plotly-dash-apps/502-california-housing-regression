@@ -31,12 +31,12 @@ app.title=tabtitle
 app.layout = html.Div(children=[
     html.H1('California Neighborhoods'),
     html.H4('What is the Median Home Value of a Neighborhood?'),
+    html.H6('Features of Neighborhood:'),
 
     ### Prediction Block
     html.Div(children=[
-        html.Div([
-                    html.H6('Features of Neighborhood:'),
 
+        html.Div([
                     html.Div('Longitude:'),
                     dcc.Input(id='longitude', value=-119.5, type='number', min=-124.3, max=-114.3, step=.1),
 
@@ -51,6 +51,9 @@ app.layout = html.Div(children=[
 
                     html.Div('Population:'),
                     dcc.Input(id='population', value=1500, type='number', min=1000, max=35000, step=500),
+                ], className='four columns'),
+        html.Div([
+
 
                     html.Div('Households:'),
                     dcc.Input(id='households', value=1000, type='number', min=500, max=6000, step=500),
@@ -67,7 +70,7 @@ app.layout = html.Div(children=[
                     html.Div('Population per Household:'),
                     dcc.Input(id='pop_per_household', value=3, type='number', min=1, max=10, step=1),
 
-                ], className='six columns'),
+                ], className='four columns'),
         html.Div([
                     html.H6('Median Home Value (Predicted):'),
                     html.Button(children='Submit', id='submit-val', n_clicks=0,
@@ -80,7 +83,7 @@ app.layout = html.Div(children=[
                                     ),
 
                     html.Div(id='Results')
-                ], className='six columns')
+                ], className='four columns')
             ], className='twelve columns'),
         ### Evaluation Block
         html.Div(children=[
